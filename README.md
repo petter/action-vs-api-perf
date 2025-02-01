@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js performance benchmarks
 
-## Getting Started
+This is a playground for testing the performance of Next.js APIs and Server Functions.
 
-First, run the development server:
+## Background
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Server functions (formerly known as Server Actions) are a new feature in React that allows you to write async functions that client components can trigger, but are executed on the server.
+They have been criticized for being slow as they are sequentially executed.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+In this repo I want to dive deeper into how these server functions perform, and if they can be made faster through some clever hacks.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Findings
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Server Functions vs API Routes
 
-## Learn More
+Server functions in and of themselves are not necessarily slower than API routes.
+After benchmarking a simple API route and a server function the results were pretty similar.
 
-To learn more about Next.js, take a look at the following resources:
+![](./data/action/comparison.png)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+In the above figure you can see the results of running 1000 requests towards an API route and a server function.
+The implementation of these are identical, where both just instantly return `"OK"`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Comparing the results of the server function and the API route we can see that they behave quite similarly.
+The build up that can be seen in both graphs is due to a build up of requests that Next.js is not able to finish processing quick enough before more requests come in. We could eliminate this by staggering the requests, but that was not the focus of this benchmark.
+After all requests have been sent we can see both server functions and the API route go back to a similar average response time.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Interestingly the build up phase is shorter for the server function.
+I have not looked into this in detail, but might be worth looking into at a later date.
