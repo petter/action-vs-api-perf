@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "api-benchmark"
+version = "0.1.0"
+description = "API benchmarking and visualization tools"
+authors = ["Petter Sæther Moen <pettersmoen@gmail.com>"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pandas = "^2.2.0"
+matplotlib = "^3.8.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
