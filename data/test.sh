@@ -31,6 +31,7 @@ test_action() {
         -H "Next-Action: ${ACTION_ID#\$ACTION_ID_}" \
         -d ${FORM_BOUNDARY}$'\r\nContent-Disposition: form-data; name="1_'${ACTION_ID}$'"\r\n\r\n\r\n'${FORM_BOUNDARY}$'\r\nContent-Disposition: form-data; name="0"\r\n\r\n["$K1"]\r\n'${FORM_BOUNDARY}$'--' \
         http://localhost:3000/ > /dev/null
+    hey -m POST http://localhost:3000/sleep/api > /dev/null
 
 
     # Create action directory if it doesn't exist
@@ -50,5 +51,38 @@ test_action() {
     echo "    Output saved to action/comparison.png"
 }
 
+test_sleep() {
+    echo ""
+    echo "⚙️ Benchmarking sleep action vs sleep POST API route"
+    # warmup
+    # Extract the ACTION_ID from the page
+    ACTION_ID=$(curl -s http://localhost:3000/sleep | grep -o '\$ACTION_ID_[a-f0-9]*' | head -n 1)
+    FORM_BOUNDARY="------WebKitFormBoundaryNur1GTzRzbQRfCPh"
+    hey -m POST \
+        -H "Content-Type: multipart/form-data; boundary=${FORM_BOUNDARY#--}" \
+        -H "Accept: text/x-component" \
+        -H "Next-Action: ${ACTION_ID#\$ACTION_ID_}" \
+        -d ${FORM_BOUNDARY}$'\r\nContent-Disposition: form-data; name="1_'${ACTION_ID}$'"\r\n\r\n\r\n'${FORM_BOUNDARY}$'\r\nContent-Disposition: form-data; name="0"\r\n\r\n["$K1"]\r\n'${FORM_BOUNDARY}$'--' \
+        http://localhost:3000/sleep > /dev/null
+
+
+    # Create sleep directory if it doesn't exist
+    mkdir -p sleep
+
+    echo "    Running Server Action benchmark"
+    hey -n 1000 -m POST -o csv \
+        -H "Content-Type: multipart/form-data; boundary=${FORM_BOUNDARY#--}" \
+        -H "Accept: text/x-component" \
+        -H "Next-Action: ${ACTION_ID#\$ACTION_ID_}" \
+        -d ${FORM_BOUNDARY}$'\r\nContent-Disposition: form-data; name="1_'${ACTION_ID}$'"\r\n\r\n\r\n'${FORM_BOUNDARY}$'\r\nContent-Disposition: form-data; name="0"\r\n\r\n["$K1"]\r\n'${FORM_BOUNDARY}$'--' \
+        http://localhost:3000/sleep > sleep/action_results.csv
+    echo "    Running simple POST benchmark"
+    hey -n 1000 -m POST -o csv http://localhost:3000/sleep/api > sleep/post_results.csv
+    echo "    Comparing results..."
+    poetry run python compare.py sleep/{action,post}_results.csv --output sleep/comparison.png
+    echo "    Output saved to sleep/comparison.png"
+}
+
 test_api_methods
 test_action
+test_sleep

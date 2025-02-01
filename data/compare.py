@@ -26,6 +26,7 @@ def plot_comparison(file1, file2, field="response-time", output=None):
     plt.title(f"Comparison of {field} between two datasets")
     plt.legend()
     plt.grid(True)
+    plt.ylim(bottom=0)  # Set y-axis to start at 0
     
     if output:
         plt.savefig(output)
