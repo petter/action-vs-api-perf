@@ -50,3 +50,9 @@ It would therefore seem that the sequential execution is only a "problem" on the
 
 In the above example we only dispatched the same action several times, but even when we are dispatching different functions the server functions will execute sequentially.
 An example of this can be found in the [sleep-3 example](./app/sleep-3/action-dispatcher.tsx), where we dispatch five different server functions and are still forced to wait for the sequential execution.
+
+## Composed functions
+
+On the client, server functions are executed parallely.
+So if you don't need the safety of the sequential execution of server functions you can create a new server function that composes the server functions you want to execute.
+An example of this can be found in the [composed-actions example](./app/composed-actions/action-dispatcher.tsx).
