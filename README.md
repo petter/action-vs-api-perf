@@ -47,3 +47,6 @@ The story is different however when we try to make requests through the user int
 
 Here we can see the sequential execution in action.
 It would therefore seem that the sequential execution is only a "problem" on the client.
+
+In the above example we only dispatched the same action several times, but even when we are dispatching different functions the server functions will execute sequentially.
+An example of this can be found in the [sleep-3 example](./app/sleep-3/action-dispatcher.tsx), where we dispatch five different server functions and are still forced to wait for the sequential execution.
